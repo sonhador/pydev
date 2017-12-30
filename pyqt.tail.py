@@ -24,6 +24,10 @@ class ClientServer:
         viewer_thread = threading.Thread(target=self.websocket_viewer)
         viewer_thread.start()
 
+    def terminate(self):
+        self.browser.exit()
+        self.server.shutdown()
+        
     def websocket_client(self, client, server):
         cnt = 0
         while (cnt < 3):
@@ -33,9 +37,8 @@ class ClientServer:
             time.sleep(2)
             cnt += 1
 
-        self.server.server_close()
-        self.browser.exit()
-
+        self.terminate()
+        
     def websocket_server(self):
         self.server.set_fn_new_client(self.websocket_client)
         self.server.run_forever()
