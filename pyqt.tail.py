@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import socket
 import random
 import logging
 import threading
@@ -15,7 +16,11 @@ class ClientServer:
     server = None
 
     def __init__(self):
-        self.server_port = random.randint(10000, 11000)
+        while (True):
+            self.server_port = random.randint(10000, 11000)
+            if (self.port_available(self.server_port)):
+                break
+
         self.server = WebsocketServer(self.server_port)
     
         server_thread = threading.Thread(target=self.websocket_server)
@@ -23,6 +28,19 @@ class ClientServer:
 
         viewer_thread = threading.Thread(target=self.websocket_viewer)
         viewer_thread.start()
+
+    def port_available(self, port):
+        print "Checking port " + str(port) + " for availability .. "
+
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        res = sock.connect_ex(('127.0.0.1', port))
+
+        if (res == 0):
+            print "Not Available\n"
+            return False
+        else:
+            print "Available\n"
+            return True
 
     def terminate(self):
         self.browser.exit()
