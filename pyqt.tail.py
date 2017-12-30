@@ -63,8 +63,16 @@ class ClientServer:
 
     def websocket_viewer(self):
         self.browser = QApplication(sys.argv)
+
         view = QWebView()
         view.setWindowFlags(Qt.FramelessWindowHint)
+        view.setAttribute(Qt.WA_TranslucentBackground)
+        view.setAttribute(Qt.WA_OpaquePaintEvent, False)
+
+        page = view.page()
+        palette = page.palette()
+        palette.setBrush(QPalette.Base, Qt.transparent)
+        page.setPalette(palette)
 
         f = open("tail.html", "r")
         html = f.read()
