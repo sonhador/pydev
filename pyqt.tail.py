@@ -1,32 +1,38 @@
 import os
 import sys
 import time
-import socket
 import random
+import socket
+import tailer
 import logging
+import tempfile
 import threading
 from websocket_server import WebsocketServer
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtWebKit import *
 
-class ClientServer:
+class TailClientServer:
     browser = None
     server_port = None
     server = None
+    filename = None
+    fh = None
 
-    def __init__(self):
+    def __init__(self, filename):
         while (True):
             self.server_port = random.randint(10000, 11000)
             if (self.port_available(self.server_port)):
                 break
 
+        self.filename = filename
         self.server = WebsocketServer(self.server_port)
     
         server_thread = threading.Thread(target=self.websocket_server)
         server_thread.start()
 
         viewer_thread = threading.Thread(target=self.websocket_viewer)
+        viewer_thread.daemon = True
         viewer_thread.start()
 
     def port_available(self, port):
@@ -43,20 +49,20 @@ class ClientServer:
             return True
 
     def terminate(self):
+        fh.close()
         self.browser.exit()
         self.server.shutdown()
         
     def websocket_client(self, client, server):
-        cnt = 0
-        while (cnt < 3):
-            msg = '{"msg": "hi"}'
-            self.server.send_message(client, msg)
-            print msg + "\n"
-            time.sleep(2)
-            cnt += 1
+        print "Starting to tail.."
 
-        self.terminate()
-        
+        fh = open(self.filename)
+
+        for line in tailer.follow(fh):
+            msg = '{"msg":"' + line + '"}'
+            print msg
+            self.server.send_message(client, msg)
+
     def websocket_server(self):
         self.server.set_fn_new_client(self.websocket_client)
         self.server.run_forever()
@@ -85,4 +91,18 @@ class ClientServer:
 
         self.browser.exec_()
 
-ClientServer()
+fh = tempfile.NamedTemporaryFile()
+tailClientServer = TailClientServer(fh.name)
+
+time.sleep(3)
+
+cnt = 0
+while (cnt < 5):
+    fh.write("hi\n")
+    fh.flush()
+    print "hi"
+    time.sleep(1)
+    cnt += 1
+
+tailClientServer.terminate()
+fh.close()
