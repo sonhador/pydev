@@ -61,7 +61,8 @@ class TailClientServer:
             msg = '{"msg":"' + line + '"}'
             print msg
             self.server.send_message(client, msg)
-            self.page.mainFrame().setScrollPosition(QPoint(0, self.page.mainFrame().contentsSize().height()))
+            self.page.mainFrame().evaluateJavaScript("window.scrollTo(0, 1000000);");
+            #self.page.mainFrame().setScrollPosition(QPoint(0, self.page.mainFrame().contentsSize().height()))
 
     def websocket_server(self):
         self.server.set_fn_new_client(self.websocket_client)
