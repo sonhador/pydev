@@ -13,6 +13,8 @@ from PyQt4.QtGui import *
 from PyQt4.QtWebKit import *
 
 class TailClientServer:
+    view = None
+    page = None
     browser = None
     server_port = None
     server = None
@@ -62,6 +64,7 @@ class TailClientServer:
             msg = '{"msg":"' + line + '"}'
             print msg
             self.server.send_message(client, msg)
+            self.page.mainFrame().setScrollPosition(QPoint(10, self.page.mainFrame().contentsSize().height()))
 
     def websocket_server(self):
         self.server.set_fn_new_client(self.websocket_client)
@@ -70,15 +73,15 @@ class TailClientServer:
     def websocket_viewer(self):
         self.browser = QApplication(sys.argv)
 
-        view = QWebView()
-        view.setWindowFlags(Qt.FramelessWindowHint)
-        view.setAttribute(Qt.WA_TranslucentBackground)
-        view.setAttribute(Qt.WA_OpaquePaintEvent, False)
+        self.view = QWebView()
+        self.view.setWindowFlags(Qt.FramelessWindowHint)
+        self.view.setAttribute(Qt.WA_TranslucentBackground)
+        self.view.setAttribute(Qt.WA_OpaquePaintEvent, False)
 
-        page = view.page()
-        palette = page.palette()
+        self.page = self.view.page()
+        palette = self.page.palette()
         palette.setBrush(QPalette.Base, Qt.transparent)
-        page.setPalette(palette)
+        self.page.setPalette(palette)
 
         f = open("tail.html", "r")
         html = f.read()
@@ -86,8 +89,8 @@ class TailClientServer:
         
         # pwd = os.getcwd();
         # view.load(QUrl("file://" + pwd + "/tail.html"))
-        view.setHtml(html)
-        view.show()
+        self.view.setHtml(html)
+        self.view.show()
 
         self.browser.exec_()
 
@@ -97,11 +100,11 @@ tailClientServer = TailClientServer(fh.name)
 time.sleep(3)
 
 cnt = 0
-while (cnt < 5):
-    fh.write("hi\n")
+while (cnt < 100):
+    fh.write("hi " + str(cnt) + "\n")
     fh.flush()
-    print "hi"
-    time.sleep(1)
+    print "hi " + str(cnt)
+    time.sleep(.3)
     cnt += 1
 
 tailClientServer.terminate()
