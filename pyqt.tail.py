@@ -78,9 +78,9 @@ class TailClientServer:
         self.view.setAttribute(Qt.WA_OpaquePaintEvent, False)
 
         self.page = self.view.page()
-        # palette = self.page.palette()
-        # palette.setBrush(QPalette.Base, Qt.transparent)
-        # self.page.setPalette(palette)
+        palette = self.page.palette()
+        palette.setBrush(QPalette.Base, Qt.transparent)
+        self.page.setPalette(palette)
 
         f = open("tail.html", "r")
         html = f.read()
