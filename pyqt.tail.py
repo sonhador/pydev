@@ -51,7 +51,7 @@ class TailClientServer:
             return True
 
     def terminate(self):
-        time.sleep(2)
+        time.sleep(1)
         fh.close()
         self.browser.exit()
         self.server.shutdown()
@@ -61,7 +61,7 @@ class TailClientServer:
 
         fh = open(self.filename)
 
-        for line in tailer.follow(fh):
+        for line in tailer.follow(fh, delay=0.2):
             msg = '{"msg":"' + line + '"}'
             print msg
             self.server.send_message(client, msg)
