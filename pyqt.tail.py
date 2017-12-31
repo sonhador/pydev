@@ -51,6 +51,7 @@ class TailClientServer:
             return True
 
     def terminate(self):
+        time.sleep(2)
         fh.close()
         self.browser.exit()
         self.server.shutdown()
@@ -64,7 +65,7 @@ class TailClientServer:
             msg = '{"msg":"' + line + '"}'
             print msg
             self.server.send_message(client, msg)
-            self.page.mainFrame().setScrollPosition(QPoint(10, self.page.mainFrame().contentsSize().height()))
+            self.page.mainFrame().setScrollPosition(QPoint(0, self.page.mainFrame().contentsSize().height()))
 
     def websocket_server(self):
         self.server.set_fn_new_client(self.websocket_client)
@@ -79,9 +80,9 @@ class TailClientServer:
         self.view.setAttribute(Qt.WA_OpaquePaintEvent, False)
 
         self.page = self.view.page()
-        palette = self.page.palette()
-        palette.setBrush(QPalette.Base, Qt.transparent)
-        self.page.setPalette(palette)
+        # palette = self.page.palette()
+        # palette.setBrush(QPalette.Base, Qt.transparent)
+        # self.page.setPalette(palette)
 
         f = open("tail.html", "r")
         html = f.read()
@@ -104,7 +105,7 @@ while (cnt < 100):
     fh.write("hi " + str(cnt) + "\n")
     fh.flush()
     print "hi " + str(cnt)
-    time.sleep(.3)
+    time.sleep(.2)
     cnt += 1
 
 tailClientServer.terminate()
