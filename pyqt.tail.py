@@ -69,6 +69,7 @@ class TailClientServer:
         self.server.run_forever()
 
     def websocket_viewer(self):
+        QCoreApplication.setAttribute(Qt.AA_X11InitThreads)
         self.browser = QApplication(sys.argv)
 
         self.view = QWebView()
