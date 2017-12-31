@@ -19,7 +19,6 @@ class TailClientServer:
     server_port = None
     server = None
     filename = None
-    fh = None
 
     def __init__(self, filename):
         while (True):
@@ -52,16 +51,13 @@ class TailClientServer:
 
     def terminate(self):
         time.sleep(1)
-        fh.close()
         self.browser.exit()
         self.server.shutdown()
         
     def websocket_client(self, client, server):
         print "Starting to tail.."
 
-        fh = open(self.filename)
-
-        for line in tailer.follow(fh, delay=0.2):
+        for line in tailer.follow(open(self.filename), delay=0.2):
             msg = '{"msg":"' + line + '"}'
             print msg
             self.server.send_message(client, msg)
