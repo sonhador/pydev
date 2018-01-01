@@ -61,7 +61,10 @@ class TailClientServer:
             msg = '{"msg":"' + line + '"}'
             print msg
             self.server.send_message(client, msg)
-            self.page.mainFrame().evaluateJavaScript("window.scrollTo(0, 1000000);");
+
+            # applying UI-change from outside DOM induces QApplication crash upon input-events.
+            # therefore, auto scroll-down logic has moved into tail.html for DOM control from within.
+            #self.page.mainFrame().evaluateJavaScript("window.scrollTo(0, 1000000);");
             #self.page.mainFrame().setScrollPosition(QPoint(0, self.page.mainFrame().contentsSize().height()))
 
     def websocket_server(self):
@@ -76,11 +79,21 @@ class TailClientServer:
         self.view.setWindowFlags(Qt.FramelessWindowHint)
         self.view.setAttribute(Qt.WA_TranslucentBackground)
         self.view.setAttribute(Qt.WA_OpaquePaintEvent, False)
-
+            
+        # disable input
+        self.view.setEnabled(False)
+        self.view.setAttribute(Qt.WA_NoMousePropagation)
+        self.view.setAttribute(Qt.WA_TransparentForMouseEvents)
+        self.view.setFocusPolicy(Qt.NoFocus)
+        
         self.page = self.view.page()
         palette = self.page.palette()
         palette.setBrush(QPalette.Base, Qt.transparent)
         self.page.setPalette(palette)
+
+        # disable scrollbar
+        self.page.mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff); 
+        self.page.mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff);
 
         f = open("tail.html", "r")
         html = f.read()

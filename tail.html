@@ -26,6 +26,7 @@
                 sock.onmessage = function(evt) {
                     var data = JSON.parse(evt.data);
                     $("#content").append("<div>" + data.msg + "</div>");
+                    window.scrollTo(0, 1000000);
                 };
             });
         </script>
